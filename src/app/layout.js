@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import NavbarButtons from "@/components/NavbarButtons";
 import Providers from "@/components/Providers";
+import { connectDB } from "@/lib/connectDb";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
@@ -21,8 +22,8 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }) {
+  await connectDB();
   const session = await auth();
-  console.log(session, "root");
 
   return (
     <html lang="en">

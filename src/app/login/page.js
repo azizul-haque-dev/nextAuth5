@@ -18,12 +18,12 @@ export default function LoginPage() {
       });
       console.log(res, "login");
 
-      if (res?.ok) {
-        alert("Login successful!");
-        router.push("/user"); // redirect after login
-      } else {
-        alert(res?.error || "Login failed");
+      if (res?.error === "CredentialsSignin") {
+        alert("Invalid Credentials");
+        return;
       }
+      alert("Login successful!");
+      router.push("/user");
     } catch (error) {
       alert(error);
     }

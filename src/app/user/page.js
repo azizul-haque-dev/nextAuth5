@@ -1,4 +1,8 @@
-export default function UserPage() {
+import { auth } from "@/auth";
+
+export default async function UserPage() {
+  const session = await auth();
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow p-6">

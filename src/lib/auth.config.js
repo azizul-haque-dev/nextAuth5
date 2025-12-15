@@ -1,6 +1,7 @@
 export const authConfig = {
   session: {
-    strategy: "jwt"
+    strategy: "jwt",
+    maxAge: 60 * 60
   },
   providers: []
 };

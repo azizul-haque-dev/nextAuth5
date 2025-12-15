@@ -1,13 +1,15 @@
+import bcrypt from "bcryptjs";
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import { authConfig } from "./lib/auth.config";
 import { connectDB } from "./lib/connectDb";
 import userModel from "./models/user.model";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   secret: process.env.AUTH_SECRET,
   trustHost: true,
-  // ...authConfig,
+  ...authConfig,
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -32,11 +34,13 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!user) throw new Error("User not found");
 
         // Use bcrypt to compare hashed passwords
-        const isMatch = credentials.password.trim() === user.password.trim();
-        console.log({ isMatch });
+        const isMatch = await bcrypt.compare(
+          credentials.password,
+          user.password
+        );
 
         if (!isMatch) {
-          throw new Error("Invalid credentials");
+          return null;
         } else {
           return {
             id: user._id.toString(),
@@ -53,15 +57,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         await connectDB();
-        const existingUser = await userModel.findOne({ email: user.email });
+        let existingUser = await userModel.findOne({ email: user.email });
 
         if (!existingUser) {
-          await userModel.create({
+          existingUser = await userModel.create({
             email: user.email,
             name: user.name,
-            role: "user"
+            role: "user",
+            method: "google"
           });
         }
+        user.id = existingUser._id.toString();
+        user.role = existingUser.role;
       }
       return true;
     },
@@ -89,10 +96,5 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   pages: {
     signIn: "/login"
-  },
-
-  session: {
-    strategy: "jwt",
-    maxAge: 5 * 60
   }
 });

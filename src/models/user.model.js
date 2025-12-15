@@ -2,9 +2,18 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    method: {
+      type: String,
+      enum: ["google", "credentials"],
+      required: true,
+      default: "credentials"
+    },
+
     name: {
       type: String,
-      required: true,
+      required: function () {
+        return this.method === "credentials";
+      },
       trim: true
     },
 
@@ -13,17 +22,12 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
-      trim: true
+      trim: true,
+      index: true
     },
 
     password: {
-      type: String,
-      required: true
-    },
-
-    token: {
-      type: String,
-      default: ""
+      type: String
     },
 
     role: {

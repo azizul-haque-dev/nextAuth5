@@ -1,7 +1,7 @@
 "use server";
-import { signIn } from "@/auth";
 import { connectDB } from "@/lib/connectDb";
 import userModel from "@/models/user.model";
+import bcrypt from "bcryptjs";
 
 export async function registerUser(formData) {
   try {
@@ -9,6 +9,7 @@ export async function registerUser(formData) {
     const name = formData.get("name");
     const email = formData.get("email");
     const password = formData.get("password");
+    const hashedPassword = bcrypt.hash(password, 10);
 
     // Check if user exists
     const isExisting = await userModel.findOne({ email });
@@ -19,7 +20,7 @@ export async function registerUser(formData) {
     await userModel.create({
       name,
       email,
-      password,
+      password: hashedPassword,
       role: "user",
       token: ""
     });
@@ -28,42 +29,5 @@ export async function registerUser(formData) {
   } catch (error) {
     console.error("Register Error:", error);
     return { success: false, message: "Server error" };
-  }
-}
-
-export async function credentialLogin(formData) {
-  try {
-    const email = formData.get("email");
-    const password = formData.get("password");
-
-    const res = await signIn("credentials", {
-      email,
-      password,
-      redirect: false
-    });
-
-    if (res?.error) {
-      return { success: false, message: res.error };
-    }
-
-    return { success: true, message: "Login successful" };
-  } catch (error) {
-    return { success: false, message: "Login failed" };
-  }
-}
-
-export async function googleLogin() {
-  try {
-    const res = await signIn("google", {
-      callbackUrl: "/user"
-    });
-    console.log(res, "google login");
-    if (res?.error) {
-      return { success: false, message: res.error };
-    }
-
-    return { success: true, message: "Login successful" };
-  } catch (error) {
-    return { success: false, message: "Login failed" };
   }
 }

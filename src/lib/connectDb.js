@@ -4,7 +4,6 @@ const url = process.env.MONGO_URI;
 let isConnected = false;
 
 export async function connectDB() {
-  console.log(url);
   if (isConnected) {
     console.log("Already connected to MongoDB");
     return;

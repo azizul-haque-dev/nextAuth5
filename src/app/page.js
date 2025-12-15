@@ -6,7 +6,6 @@ import { useState } from "react";
 export default function HomePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { data: session } = useSession();
-  console.log(session);
 
   return (
     <>
